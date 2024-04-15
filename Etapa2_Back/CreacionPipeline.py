@@ -1,20 +1,28 @@
+ # librería Natural Language Toolkit, usada para trabajar con textos
 import nltk
+# Punkt permite separar un texto en frases.
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
 
 import pandas as pd
 import numpy as np
 import sys
-from nltk.corpus import stopwords # type: ignore
 
 import re, string, unicodedata
 import contractions
 import inflect
 from nltk import word_tokenize, sent_tokenize
-
+from nltk.corpus import stopwords
+from nltk.stem import LancasterStemmer, WordNetLemmatizer
 
 from sklearn.model_selection import train_test_split,GridSearchCV
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, HashingVectorizer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.metrics import classification_report, confusion_matrix
 
 from scipy import stats as st
@@ -32,11 +40,12 @@ import json
 from sklearn.preprocessing import FunctionTransformer
 import joblib
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+#Cargamos los datos
+data=pd.read_csv("assets/tipo2_entrenamiento_estudiantes.csv", sep=',', encoding = 'utf-8')
 
-#Cargamos las funciones que necesitamos
+
+## TODAS LAS COSAS QUE SE NECESITAN
+#Ahora creamos las funciones que nuestro pipe podria necesitar
 def remove_non_ascii(words):
     """Remove non-ASCII characters from list of tokenized words"""
     new_words = []
@@ -107,4 +116,37 @@ def preprocessing_text(texto):
     texto['words'] = texto['words'].apply(lambda x: ' '.join(map(str, x)))
     return texto['words']
 
+#Necesitamos un transformador custom para que haga la representacion y solo utilice las columnas que queremos
+class Transformer_Representacion_Seleccion:
+    def __init__(self, count_vectorizer):
+        self.count_vectorizer = count_vectorizer
+        self.palabras = None
+        with open('assets/palabras_utiles.json', 'r') as f:
+            lista_cargada = json.load(f)
+            
+        self.palabras_deseadas = pd.Index(lista_cargada)
+    
+    def fit(self, X, y=None):
+        X_transformed = self.count_vectorizer.fit_transform(X)
+        self.palabras = self.count_vectorizer.get_feature_names_out()
+        return self
+    
+    def transform(self, X):
+        # Transform data using CountVectorizer
+        X_transformed = self.count_vectorizer.transform(X)
+        # Get feature names from CountVectorizer
+        X_todas_palabras = pd.DataFrame(X_transformed.toarray(), columns=self.palabras)
+        
+        return X_todas_palabras[self.palabras_deseadas].copy()
+    
+#Creamos el pipe (solo probando la parte de preprocesamiento)
+#pipe = Pipeline([
+   # ('preprocess', FunctionTransformer(preprocessing_text)),
+  #  ('representacion', Transformer_Representacion_Seleccion(CountVectorizer())),
+ #   ('clf', MultinomialNB(alpha = 0.92)),
+#])
+
+#pipe.fit(data, data['Class'])
+
+#joblib.dump(pipe, 'assets/pipeline_funcional.joblib')
 

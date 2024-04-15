@@ -1,15 +1,18 @@
 from typing import Optional
 from DataModel import DataModel
 from pydantic import BaseModel
-from PredictionModel import Model
 from fastapi import FastAPI
 import pandas as pd
 from joblib import load 
-print("Before import")
-from RequiredFunctions import preprocessing_text, apply_preprossesing, remove_non_ascii, to_lowercase, contains_number, remove_numbers, remove_punctuation, remove_stopwords
-print("After import")
+from nbconvert import PythonExporter
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+import pickle
+from typing import List
+import CreacionPipeline
+from fastapi.responses import JSONResponse
+
 app = FastAPI()
-from TransformerClass import Transformer_Representacion_Seleccion
 
 
 @app.get("/")
@@ -23,10 +26,26 @@ def read_item(item_id: int, q: Optional[str] = None):
 
 
 @app.post("/predict")
-def make_predictions(dataModel: DataModel):
-    df = pd.DataFrame(dataModel.dict(), columns=dataModel.dict().keys(), index=[0])
-    print(df)
-    df.columns = dataModel.columns()
-    modelo = Model()
-    result = modelo.predict(df)
-    return result
+def make_predictions(datdf_data: DataModel):
+   df = pd.DataFrame(datdf_data.dict())
+   df.columns = datdf_data.columns()
+   model = load("assets/pipeline_funcional.joblib")
+   result = model.predict(df)
+   result_list = result.tolist()
+
+   return JSONResponse(content={"predictions": result_list})
+
+@app.post("/predict_probs")
+def make_predictions(datdf_data: DataModel):
+   df = pd.DataFrame(datdf_data.dict())
+   df.columns = datdf_data.columns()
+   model = load("assets/pipeline_funcional.joblib")
+   result = model.predict(df)
+   predicciones = result.tolist()
+
+   probabilidades = model.predict_proba(df)
+   probas_finales = []
+   for probabilidad in probabilidades:
+      probas_finales.append(max(probabilidad))
+
+   return JSONResponse(content={"predictions": predicciones, "probabilities": probas_finales})
