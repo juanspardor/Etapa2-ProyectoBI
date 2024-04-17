@@ -11,9 +11,18 @@ import pickle
 from typing import List
 import CreacionPipeline
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Configura CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Esto permite todos los orígenes, ajusta según sea necesario
+    allow_credentials=True,
+    allow_methods=["*"],  # Esto permite todos los métodos, ajusta según sea necesario
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
