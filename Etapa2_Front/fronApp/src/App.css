@@ -1,0 +1,13 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(255, 255, 255);
+}
+
+#titulo_app{
+  margin-top: 50px;
+  font-size: 3em;
+}
