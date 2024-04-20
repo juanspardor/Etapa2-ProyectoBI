@@ -117,7 +117,7 @@ function ReviewInputManager() {
             <div id='probabilidades'>
             {entrada.certeza && (
               <p>
-                <strong>Certeza de la Predicción: </strong> 
+                <strong>Probabilidad de la Predicción: </strong> 
                 <span style={{ color: entrada.colorCerteza }}>
                   <strong>{entrada.certeza} ({entrada.probabilidad.toFixed(2)})</strong>
                 </span>
