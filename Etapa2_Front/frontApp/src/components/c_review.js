@@ -14,11 +14,11 @@ function ReviewInputManager() {
   const calculateCertainty = (probabilidad) => {
     if (probabilidad >= 0.65)
       return { text: 'Muy alta', color: 'blue' };
-      else if (0.5 <= probabilidad <= 0.64) {
+      else if (probabilidad <= 0.64 && probabilidad >= 0.50) {
       return { text: 'Alta', color: 'green' };
-    } else if (0.35 <= probabilidad <= 0.49) {
+    } else if (probabilidad <= 0.49 && probabilidad >= 0.35) {
       return { text: 'Media', color: 'gray' };
-    } else if (0.2 <= probabilidad <= 0.34) {
+    } else if (probabilidad <= 0.34 && probabilidad >= 0.20) {
       return { text: 'Baja', color: 'orange' };
     };
   }
