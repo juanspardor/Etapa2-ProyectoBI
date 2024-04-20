@@ -11,3 +11,10 @@
   margin-top: 50px;
   font-size: 3em;
 }
+
+#logo_app {
+  width: 5%;
+  margin-top: -2%;
+  margin-bottom: 1%;
+  pointer-events: none;
+}
